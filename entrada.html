@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrada de Produto</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Entrada de Produto</h1>
+        <form id="entradaForm" onsubmit="registrarEntrada(event)">
+            <label for="nomeProduto">Nome do Produto:</label>
+            <input type="text" id="nomeProduto" placeholder="Nome do Produto" required>
+
+            <label for="quantidade">Quantidade:</label>
+            <input type="number" id="quantidade" placeholder="Quantidade" required>
+
+            <label for="validade">Validade (Data de Vencimento):</label>
+            <input type="date" id="validade" placeholder="Validade" required>
+
+            <label for="dataEntrada">Data de Entrada:</label>
+            <input type="date" id="dataEntrada" placeholder="Data de Entrada" required>
+
+            <button type="submit">Registrar Entrada</button>
+            <button type="button" onclick="window.location.href='index.html'">Voltar ao Menu</button>
+        </form>
+    </div>
+
+    <script>
+        function registrarEntrada(event) {
+            event.preventDefault(); // Evita o envio do formulário
+
+            const nomeProduto = document.getElementById('nomeProduto').value;
+            const quantidade = parseInt(document.getElementById('quantidade').value);
+            const validade = document.getElementById('validade').value;
+            const dataEntrada = document.getElementById('dataEntrada').value;
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+
+            const produtoIndex = produtos.findIndex(produto => produto.nome.toLowerCase() === nomeProduto.toLowerCase());
+
+            if (produtoIndex !== -1) {
+                // Produto encontrado no estoque
+                const produto = produtos[produtoIndex];
+                produto.quantidade += quantidade; // Soma a quantidade existente à nova quantidade
+                produto.validade = validade; // Atualiza a validade para a mais recente
+                produto.dataEntrada = dataEntrada; // Registra a data de entrada
+                alert(`Quantidade atualizada: ${produto.nome} agora tem ${produto.quantidade} unidades.`);
+            } else {
+                // Produto não encontrado
+                if (confirm("Produto não encontrado no estoque. Deseja cadastrar um novo produto?")) {
+                    window.location.href = 'cadastro.html'; // Redireciona para a tela de cadastro
+                    return;
+                } else {
+                    return; // Se o usuário não quiser cadastrar, o processo é cancelado
+                }
+            }
+
+            // Salva as atualizações no localStorage
+            localStorage.setItem('produtos', JSON.stringify(produtos));
+
+            // Limpa os campos do formulário
+            document.getElementById('entradaForm').reset();
+        }
+    </script>
+</body>
+</html>

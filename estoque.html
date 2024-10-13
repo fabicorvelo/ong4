@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque</title>
+    <link rel="stylesheet" href="style2.css">
+</head>
+<body>
+    <h1>Estoque de Produtos</h1>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Digite o nome do produto...">
+        <button onclick="filtrarProdutos()">Pesquisar</button>
+    </div>
+
+    <div id="product-list"></div>
+
+    <button type="button" onclick="window.location.href='index.html'">Voltar ao Menu</button>
+
+    <script>
+        // Função para carregar e exibir os produtos do estoque
+        function carregarProdutos() {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+
+            if (produtos.length === 0) {
+                const mensagem = document.createElement('p');
+                mensagem.textContent = "Nenhum produto no estoque.";
+                productList.appendChild(mensagem);
+            } else {
+                const produtosAgrupados = {};
+
+                produtos.forEach(produto => {
+                    const chave = produto.nome.toLowerCase();
+                    if (!produtosAgrupados[chave]) {
+                        produtosAgrupados[chave] = {
+                            nome: produto.nome,
+                            imagem: produto.imagem,
+                            totalQuantidade: 0,
+                            detalhes: []
+                        };
+                    }
+
+                    // Somar a quantidade de produtos com o mesmo nome
+                    const quantidadeAtual = parseInt(produto.quantidade) || 0;
+                    produtosAgrupados[chave].totalQuantidade += quantidadeAtual;
+
+                    // Adicionar detalhes (mantendo as validades e datas diferentes separadas)
+                    produtosAgrupados[chave].detalhes.push({
+                        validade: produto.validade,
+                        dataEntrada: produto.dataEntrada,
+                        dataSaida: produto.dataSaida,
+                        quantidade: produto.quantidade
+                    });
+                });
+
+                const produtosLista = Object.values(produtosAgrupados);
+
+                produtosLista.forEach(produto => {
+                    const divProduto = document.createElement('div');
+                    divProduto.classList.add('produto-item');
+
+                    const img = document.createElement('img');
+                    img.src = produto.imagem || 'imagens/placeholder.png';
+                    img.alt = produto.nome;
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    divProduto.appendChild(img);
+
+                    const info = document.createElement('p');
+                    info.textContent = `Nome: ${produto.nome} - Quantidade Total: ${produto.totalQuantidade}`;
+                    divProduto.appendChild(info);
+
+                    const tabela = document.createElement('table');
+                    const header = tabela.createTHead();
+                    const row = header.insertRow(0);
+                    row.insertCell(0).textContent = "Validade";
+                    row.insertCell(1).textContent = "Entrada";
+                    row.insertCell(2).textContent = "Saída";
+                    row.insertCell(3).textContent = "Quantidade";
+
+                    const tbody = tabela.createTBody();
+                    produto.detalhes.forEach(detalhe => {
+                        const row = tbody.insertRow();
+                        row.insertCell(0).textContent = detalhe.validade || 'Não informada';
+                        row.insertCell(1).textContent = detalhe.dataEntrada || 'Não informada';
+                        row.insertCell(2).textContent = detalhe.dataSaida || 'Não informada';
+                        row.insertCell(3).textContent = detalhe.quantidade || '0';
+                    });
+
+                    divProduto.appendChild(tabela);
+                    productList.appendChild(divProduto);
+                });
+            }
+        }
+
+        // Função para filtrar os produtos
+        function filtrarProdutos() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+
+            const produtosFiltrados = produtos.filter(produto => produto.nome.toLowerCase().includes(searchInput));
+
+            if (produtosFiltrados.length === 0) {
+                const mensagem = document.createElement('p');
+                mensagem.textContent = "Nenhum produto encontrado.";
+                productList.appendChild(mensagem);
+            } else {
+                const produtosAgrupados = {};
+                produtosFiltrados.forEach(produto => {
+                    const chave = produto.nome.toLowerCase();
+                    if (!produtosAgrupados[chave]) {
+                        produtosAgrupados[chave] = {
+                            nome: produto.nome,
+                            imagem: produto.imagem,
+                            totalQuantidade: 0,
+                            detalhes: []
+                        };
+                    }
+
+                    const quantidadeAtual = parseInt(produto.quantidade) || 0;
+                    produtosAgrupados[chave].totalQuantidade += quantidadeAtual;
+
+                    produtosAgrupados[chave].detalhes.push({
+                        validade: produto.validade,
+                        dataEntrada: produto.dataEntrada,
+                        dataSaida: produto.dataSaida,
+                        quantidade: produto.quantidade
+                    });
+                });
+
+                const produtosLista = Object.values(produtosAgrupados);
+
+                produtosLista.forEach(produto => {
+                    const divProduto = document.createElement('div');
+                    divProduto.classList.add('produto-item');
+
+                    const img = document.createElement('img');
+                    img.src = produto.imagem || 'imagens/placeholder.png';
+                    img.alt = produto.nome;
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    divProduto.appendChild(img);
+
+                    const info = document.createElement('p');
+                    info.textContent = `Nome: ${produto.nome} - Quantidade Total: ${produto.totalQuantidade}`;
+                    divProduto.appendChild(info);
+
+                    const tabela = document.createElement('table');
+                    const header = tabela.createTHead();
+                    const row = header.insertRow(0);
+                    row.insertCell(0).textContent = "Validade";
+                    row.insertCell(1).textContent = "Entrada";
+                    row.insertCell(2).textContent = "Saída";
+                    row.insertCell(3).textContent = "Quantidade";
+
+                    const tbody = tabela.createTBody();
+                    produto.detalhes.forEach(detalhe => {
+                        const row = tbody.insertRow();
+                        row.insertCell(0).textContent = detalhe.validade || 'Não informada';
+                        row.insertCell(1).textContent = detalhe.dataEntrada || 'Não informada';
+                        row.insertCell(2).textContent = detalhe.dataSaida || 'Não informada';
+                        row.insertCell(3).textContent = detalhe.quantidade || '0';
+                    });
+
+                    divProduto.appendChild(tabela);
+                    productList.appendChild(divProduto);
+                });
+            }
+        }
+
+        // Chama a função para carregar os produtos ao iniciar a página
+        window.onload = carregarProdutos;
+    </script>
+</body>
+</html>
